@@ -9,15 +9,12 @@ class ConfigView(ttk.Frame):
         self.master = master
         self.reader = reader
         self.scales = []
-        # Empaquetar el frame principal
         self.pack(fill=tk.BOTH, expand=True)
         self._build_ui()
         self._load_cached_scales()
 
     def _build_ui(self):
         ttk.Label(self, text="Básculas EcoFactur Local", font=("Helvetica", 16, "bold")).pack(pady=5)
-
-        # Panel para agregar báscula
         frame = ttk.Frame(self)
         frame.pack(fill=tk.X, pady=5)
         ttk.Label(frame, text="Nombre:").pack(side=tk.LEFT, padx=5)
@@ -31,7 +28,6 @@ class ConfigView(ttk.Frame):
         ttk.Button(frame, text="Refrescar", command=self._refresh_ports).pack(side=tk.LEFT, padx=5)
         ttk.Button(frame, text="Agregar", command=self._add_scale).pack(side=tk.LEFT)
 
-        # Tabla de básculas y pesos
         cols = ("Puerto", "Peso (kg)")
         self.tree = ttk.Treeview(self, columns=cols, show="headings", height=8)
         for c in cols:
@@ -39,7 +35,6 @@ class ConfigView(ttk.Frame):
             self.tree.column(c, width=120, anchor=tk.CENTER)
         self.tree.pack(fill=tk.BOTH, expand=True, pady=10)
 
-        # Área de log
         self.log = tk.Text(self, height=6, state=tk.DISABLED)
         self.log.pack(fill=tk.BOTH, pady=(0,10))
 
@@ -78,3 +73,7 @@ class ConfigView(ttk.Frame):
         self.log.insert(tk.END, msg + "\n")
         self.log.configure(state=tk.DISABLED)
         self.log.see(tk.END)
+
+    def log_message(self, msg):
+        """Alias público para registrar mensajes de log"""
+        self._log(msg)

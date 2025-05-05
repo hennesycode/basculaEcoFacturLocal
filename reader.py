@@ -17,11 +17,13 @@ class ScaleReader:
             time.sleep(2)
             ser.reset_input_buffer()
         except Exception as e:
-            if self.ui: self.ui.log_message(f"[Error conectar {name}@{port}]: {e}")
+            if self.ui:
+                self.ui.log_message(f"[Error conectar {name}@{port}]: {e}")
             return
         with self.lock:
             self.scales.append({'name': name, 'port': port, 'serial': ser, 'last_weight': None})
-        if self.ui: self.ui.log_message(f"Registrada báscula '{name}' en {port}")
+        if self.ui:
+            self.ui.log_message(f"Registrada báscula '{name}' en {port}")
 
     def run(self):
         while True:
@@ -35,8 +37,10 @@ class ScaleReader:
                         w = float(m.group(1))
                         if s['last_weight'] != w:
                             s['last_weight'] = w
-                            if self.ui: self.ui.update_weight(s['name'], w)
+                            if self.ui:
+                                self.ui.update_weight(s['name'], w)
                 except Exception as e:
-                    if self.ui: self.ui.log_message(f"[Error lectura {s['name']}]: {e}")
+                    if self.ui:
+                        self.ui.log_message(f"[Error lectura {s['name']}]: {e}")
                 time.sleep(0.1)
             time.sleep(0.4)
