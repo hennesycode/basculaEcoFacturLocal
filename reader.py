@@ -1,55 +1,42 @@
-# -----------------------------
-# File: reader.py
-# -----------------------------
 import serial
 import time
 import re
+from threading import Lock
 
 class ScaleReader:
-    def __init__(self, ui):
+    def __init__(self, ui=None):
         self.ui = ui
-        self.name = None
-        self.port = None
-        self.serial = None
+        self.scales = []  # cada elemento: {name, port, serial, last_weight}
+        self.lock = Lock()
 
-    def update_scale(self, name, port):
-        self.name = name
-        self.port = port
-        if self.serial and self.serial.is_open:
-            self.serial.close()
+    def register_scale(self, name, port):
+        if any(s['name']==name and s['port']==port for s in self.scales):
+            return
         try:
-            self.serial = serial.Serial(port, baudrate=9600, timeout=1)
-            self.ui.log_message(f"Conectado a {port}")
+            ser = serial.Serial(port, baudrate=9600, timeout=1)
             time.sleep(2)
-            self.serial.reset_input_buffer()
+            ser.reset_input_buffer()
         except Exception as e:
-            self.ui.log_message(f"Error al conectar: {e}")
-            self.serial = None
-
-    def read_weight(self):
-        if not self.serial or not self.serial.is_open:
-            return None
-        try:
-            line = self.serial.readline().decode('utf-8', errors='ignore').strip()
-            m = re.search(r'(\d+(\.\d+)?)', line)
-            if m:
-                return float(m.group(1))
-        except Exception as e:
-            self.ui.log_message(f"Error lectura: {e}")
-        return None
+            if self.ui: self.ui.log_message(f"[Error conectar {name}@{port}]: {e}")
+            return
+        with self.lock:
+            self.scales.append({'name': name, 'port': port, 'serial': ser, 'last_weight': None})
+        if self.ui: self.ui.log_message(f"Registrada báscula '{name}' en {port}")
 
     def run(self):
-        last_weight = None
         while True:
-            if self.name and self.serial:
-                # Intentar hasta 5 lecturas
-                for _ in range(5):
-                    weight = self.read_weight()
-                    if weight is not None:
-                        if weight != last_weight:
-                            self.ui.log_message(f"Báscula {self.name}: {weight} kg")
-                            last_weight = weight
-                        break
-                time.sleep(0.5)
-            else:
-                time.sleep(1)
+            with self.lock:
+                copy_scales = list(self.scales)
+            for s in copy_scales:
+                try:
+                    line = s['serial'].readline().decode('utf-8', errors='ignore').strip()
+                    m = re.search(r'(\d+(\.\d+)?)', line)
+                    if m:
+                        w = float(m.group(1))
+                        if s['last_weight'] != w:
+                            s['last_weight'] = w
+                            if self.ui: self.ui.update_weight(s['name'], w)
+                except Exception as e:
+                    if self.ui: self.ui.log_message(f"[Error lectura {s['name']}]: {e}")
+                time.sleep(0.1)
+            time.sleep(0.4)
