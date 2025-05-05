@@ -16,35 +16,27 @@ class ConfigView(ttk.Frame):
     def _build_ui(self):
         ttk.Label(self, text="Básculas EcoFactur Local", font=("Helvetica", 16, "bold")).pack(pady=5)
 
-        # Panel para agregar báscula
         frame = ttk.Frame(self)
         frame.pack(fill=tk.X, pady=5)
-
         ttk.Label(frame, text="Nombre:").pack(side=tk.LEFT, padx=5)
         self.name_var = tk.StringVar()
         ttk.Entry(frame, textvariable=self.name_var, width=15).pack(side=tk.LEFT)
 
         ttk.Label(frame, text="Puerto COM:").pack(side=tk.LEFT, padx=(15,5))
         self.port_var = tk.StringVar()
-        self.port_cb = ttk.Combobox(
-            frame, textvariable=self.port_var,
-            values=self._get_com_ports(), width=12, state="readonly"
-        )
+        self.port_cb = ttk.Combobox(frame, textvariable=self.port_var,
+            values=self._get_com_ports(), width=12, state="readonly")
         self.port_cb.pack(side=tk.LEFT)
 
         ttk.Label(frame, text="Baudrate:").pack(side=tk.LEFT, padx=(15,5))
         self.baud_var = tk.StringVar(value="9600")
-        ttk.Combobox(
-            frame, textvariable=self.baud_var,
+        ttk.Combobox(frame, textvariable=self.baud_var,
             values=["9600","19200","38400","57600","115200"],
-            width=8,
-            state="readonly"
-        ).pack(side=tk.LEFT)
+            width=8, state="readonly").pack(side=tk.LEFT)
 
         ttk.Button(frame, text="Refrescar", command=self._refresh_ports).pack(side=tk.LEFT, padx=5)
         ttk.Button(frame, text="Agregar", command=self._add_scale).pack(side=tk.LEFT)
 
-        # Tabla de básculas y pesos
         cols = ("Puerto", "Peso (kg)")
         self.tree = ttk.Treeview(self, columns=cols, show="headings", height=8)
         for c in cols:
@@ -52,7 +44,6 @@ class ConfigView(ttk.Frame):
             self.tree.column(c, width=120, anchor=tk.CENTER)
         self.tree.pack(fill=tk.BOTH, expand=True, pady=10)
 
-        # Área de log
         self.log = tk.Text(self, height=6, state=tk.DISABLED)
         self.log.pack(fill=tk.BOTH, pady=(0,10))
 
