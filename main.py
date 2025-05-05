@@ -7,6 +7,8 @@ def main():
     root = tk.Tk()
     root.title("Básculas EcoFactur Local")
     root.geometry("600x550")
+
+    # Tema moderno (opcional)
     try:
         import sv_ttk
         sv_ttk.set_theme("dark")
