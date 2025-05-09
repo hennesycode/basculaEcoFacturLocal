@@ -1,8 +1,8 @@
+# main.py
 import tkinter as tk
 import threading
 from ui import ConfigView
 from reader import ScaleReader
-
 
 def main():
     root = tk.Tk()
@@ -18,6 +18,7 @@ def main():
     app = ConfigView(root, reader)
     reader.ui = app
 
+    # Arranca el hilo de lectura de básculas
     thr = threading.Thread(target=reader.run, daemon=True)
     thr.start()
 
