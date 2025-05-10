@@ -1,0 +1,17 @@
+[
+    {
+      "name": "Báscula 1p",
+      "port": "COM1",
+      "baud": 9600
+    },
+    {
+      "name": "Báscula 2p",
+      "port": "COM2",
+      "baud": 9600
+    },
+    {
+      "name": "Báscula 3p",
+      "port": "COM3",
+      "baud": 9600
+    }
+]  
